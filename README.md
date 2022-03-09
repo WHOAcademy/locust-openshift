@@ -9,7 +9,7 @@ Original idea and inspiration came from: https://medium.com/locust-io-experiment
 Run the following command to move the test data to the cluster.
 
 ```
-$ ./seed.sh file_name_with_test.py https://www.url-to-test.com
+$ sh ./seed.sh file_name_with_test.py https://www.url-to-test.com
 ```
 
 __Note:__ the `seed.sh` use the `oc` command to push the changes.

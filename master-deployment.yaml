@@ -63,6 +63,8 @@ objects:
                     key: ATTACKED_HOST
               - name: LOCUST_MODE
                 value: MASTER
+              - name: LOCUST_MODE_MASTER
+                value: 'true'
               - name: LOCUST_OPTS
                 value: --print-stats -P=8089
             resources:
@@ -96,22 +98,14 @@ objects:
       namespace: ${NAMESPACE}
     data:
       locustfile.py: |
-        from locust import HttpLocust, TaskSet, task
+        from locust import HttpUser, task, between
 
+        class QuickstartUser(HttpUser):
+          wait_time = between(1, 2.5)
 
-        class UserTasks(TaskSet):
-
-            @task
-            def index(self):
-                self.client.get("/")
-
-            @task
-            def stats(self):
-                self.client.get("/stats/requests")
-
-
-        class WebsiteUser(HttpLocust):
-            task_set = UserTasks
+          @task
+          def on_start(self):
+            self.client.get("/")
 
   - kind: ConfigMap
     apiVersion: v1
@@ -125,11 +119,11 @@ parameters:
 - name: NAMESPACE
   displayName: Namespace
   description: Namespace where the Locust is running
-  value: locust
+  value: test-locust
   required: true
 
 - name: LOCUST_IMAGE
   displayName: Locust docker image
   description: Name of the image to be used.
-  value: grubykarol/locust:0.13.5-python3.8-alpine3.11
+  value: grubykarol/locust:1.0.3-python3.8-alpine3.11
   required: true

@@ -28,12 +28,12 @@ objects:
                   configMapKeyRef:
                     name: host-url
                     key: ATTACKED_HOST
-              - name: LOCUST_MODE
-                value: SLAVE
-              - name: LOCUST_MASTER_HOST
-                value: $(LOCUST_SERVICE_HOST)
+              - name: LOCUST_MODE_WORKER
+                value: 'true'
+              - name: LOCUST_MASTER_NODE_HOST
+                value: 'locust'
               - name: LOCUST_OPTS
-                value: -P=8089
+                value: '-P=8089'
             resources:
               limits:
                 cpu: "0.5"
@@ -95,11 +95,11 @@ parameters:
 - name: NAMESPACE
   displayName: Namespace
   description: Namespace where the Locust is running
-  value: locust
+  value: test-locust
   required: true
 
 - name: LOCUST_SLAVE_IMAGE
   displayName: Locust-Slave docker image
   description: Name of the image to be used.
-  value: grubykarol/locust:0.13.5-python3.8-alpine3.11
+  value: grubykarol/locust:1.0.3-python3.8-alpine3.11
   required: true
