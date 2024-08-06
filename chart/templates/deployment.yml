@@ -1,0 +1,102 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "master.fullname" . }}
+  labels:
+    {{- include "master.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      {{- include "master.labels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        {{- include "master.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ include "master.name" . }}
+        image: {{ .Values.image }}
+        imagePullPolicy: Always
+        args: [
+          "--master",
+          "--host={{ .Values.host_url }}"
+        ]
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 5557
+          name: comm
+        - containerPort: 5558
+          name: comm-plus-1
+        - containerPort: 8089
+          name: web-ui
+        volumeMounts:
+        - name: locust-scripts
+          mountPath: /home/locust
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: locust-scripts
+        configMap:
+          name: {{ include "master.fullname" . }}-script-file
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "slave.fullname" . }}
+  labels:
+    {{- include "slave.labels" . | nindent 4 }}
+spec:
+  replicas: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "slave.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "slave.labels" . | nindent 8 }}
+    spec:
+      containers:
+      - name: {{ include "slave.name" . }}
+        image: {{ .Values.image }}
+        imagePullPolicy: Always
+        args: ["--worker", "--master-host=locust-master"]
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "1024Mi"
+        volumeMounts:
+        - name: locust-scripts
+          mountPath: /home/locust
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: locust-scripts
+        configMap:
+          name: {{ include "master.fullname" . }}-script-file

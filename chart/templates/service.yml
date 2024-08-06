@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "master.fullname" . }}
+  labels:
+    {{- include "master.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "master.labels" . | nindent 4 }}
+  ports:
+    - name: "communication"
+      protocol: TCP
+      port: 5557
+    - name: "communication-plus-1"
+      protocol: TCP
+      port: 5558
+    - name: "web-ui"
+      protocol: TCP
+      port: 8089
+  type: LoadBalancer

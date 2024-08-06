@@ -1,0 +1,5 @@
+# The image at grubykarol/locust:1.0.3-python3.8-alpine3.11 is now moved to
+# whoalxp.azurecr.io/locust:1.0.0 due to limitations in docker pull
+image: locustio/locust
+
+host_url: https://lxp-api-production.azure-api.net/UATStage
